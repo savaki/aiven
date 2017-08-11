@@ -1,5 +1,7 @@
 # aiven
 
+[![GoDoc](https://godoc.org/github.com/savaki/aiven?status.svg)](https://godoc.org/github.com/savaki/aiven)
+
 golang client and console cli for aiven
 
 Status: project has very limited functionality and is under heavy development
