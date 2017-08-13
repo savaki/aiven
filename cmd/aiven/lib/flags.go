@@ -1,14 +1,13 @@
 package lib
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
-
-	"encoding/json"
-
-	"context"
 	"time"
 
+	"github.com/savaki/aiven/kafka"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -18,6 +17,13 @@ var opts = struct {
 	OTP      string
 	Project  string
 	Service  string
+	Topic    struct {
+		Name           string
+		CleanupPolicy  string
+		Partitions     int
+		Replication    int
+		RetentionHours int
+	}
 }{}
 
 var (
@@ -51,6 +57,42 @@ var (
 		EnvVar:      "AIVEN_SERVICE",
 		Destination: &opts.Service,
 	}
+	// kafka specific
+	//
+	flagName = cli.StringFlag{
+		Name:        "name",
+		Usage:       "name of topic",
+		EnvVar:      "TOPIC_NAME",
+		Destination: &opts.Topic.Name,
+	}
+	flagCleanupPolicy = cli.StringFlag{
+		Name:        "cleanup-policy",
+		Value:       kafka.CleanupPolicyDelete,
+		Usage:       "cleanup policy",
+		EnvVar:      "TOPIC_CLEANUP_POLICY",
+		Destination: &opts.Topic.CleanupPolicy,
+	}
+	flagPartitions = cli.IntFlag{
+		Name:        "partitions",
+		Value:       1,
+		Usage:       "partitions",
+		EnvVar:      "TOPIC_PARTITIONS",
+		Destination: &opts.Topic.Partitions,
+	}
+	flagReplication = cli.IntFlag{
+		Name:        "replication",
+		Value:       3,
+		Usage:       "replication factor",
+		EnvVar:      "TOPIC_REPLICATION",
+		Destination: &opts.Topic.Replication,
+	}
+	flagRetentionHours = cli.IntFlag{
+		Name:        "retention-hours",
+		Value:       36,
+		Usage:       "hours to retain content",
+		EnvVar:      "TOPIC_REPLICATION_HOURS",
+		Destination: &opts.Topic.RetentionHours,
+	}
 )
 
 func Do(fn func(ctx context.Context) (interface{}, error)) cli.ActionFunc {
@@ -64,9 +106,11 @@ func Do(fn func(ctx context.Context) (interface{}, error)) cli.ActionFunc {
 			os.Exit(1)
 		}
 
-		encoder := json.NewEncoder(os.Stdout)
-		encoder.SetIndent("", "  ")
-		encoder.Encode(out)
+		if out != nil {
+			encoder := json.NewEncoder(os.Stdout)
+			encoder.SetIndent("", "  ")
+			encoder.Encode(out)
+		}
 
 		return nil
 	}

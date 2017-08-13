@@ -73,6 +73,11 @@ func (c *Client) Post(ctx context.Context, url string, in, out interface{}) erro
 	return c.Do(ctx, http.MethodPost, url, in, out)
 }
 
+// Delete to specified url with authentication
+func (c *Client) Delete(ctx context.Context, url string, in, out interface{}) error {
+	return c.Do(ctx, http.MethodDelete, url, in, out)
+}
+
 func (c *Client) authOTP(ctx context.Context, email, password, otp string) error {
 	in := map[string]string{
 		"email":    email,

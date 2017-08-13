@@ -13,7 +13,7 @@ var Kafka = cli.Command{
 	Usage: "kafka related commands",
 	Subcommands: cli.Commands{
 		{
-			Name:  "topics",
+			Name:  "list-topics",
 			Usage: "list kafka topics",
 			Flags: []cli.Flag{
 				flagEmail,
@@ -22,16 +22,79 @@ var Kafka = cli.Command{
 				flagProject,
 				flagService,
 			},
-			Action: Do(kafkaTopics),
+			Action: Do(listTopics),
+		},
+		{
+			Name:  "create-topic",
+			Usage: "create kafka topic",
+			Flags: []cli.Flag{
+				flagEmail,
+				flagPassword,
+				flagOTP,
+				flagProject,
+				flagService,
+				flagName,
+				flagCleanupPolicy,
+				flagPartitions,
+				flagReplication,
+				flagRetentionHours,
+			},
+			Action: Do(createTopic),
+		},
+		{
+			Name:  "delete-topic",
+			Usage: "delete kafka topic",
+			Flags: []cli.Flag{
+				flagEmail,
+				flagPassword,
+				flagOTP,
+				flagProject,
+				flagService,
+				flagName,
+			},
+			Action: Do(deleteTopic),
 		},
 	},
 }
 
-func kafkaTopics(ctx context.Context) (interface{}, error) {
+func listTopics(ctx context.Context) (interface{}, error) {
 	client, err := aiven.NewOTP(opts.Email, opts.Password, opts.OTP)
 	if err != nil {
 		return nil, err
 	}
 
-	return kafka.New(client).Topics(ctx, opts.Project, opts.Service)
+	return kafka.New(client).ListTopics(ctx, kafka.ListTopicsIn{
+		Project: opts.Project,
+		Service: opts.Service,
+	})
+}
+
+func createTopic(ctx context.Context) (interface{}, error) {
+	client, err := aiven.NewOTP(opts.Email, opts.Password, opts.OTP)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, kafka.New(client).CreateTopic(ctx, kafka.CreateTopicIn{
+		Project:        opts.Project,
+		Service:        opts.Service,
+		CleanupPolicy:  opts.Topic.CleanupPolicy,
+		Partitions:     opts.Topic.Partitions,
+		Replication:    opts.Topic.Replication,
+		RetentionHours: opts.Topic.RetentionHours,
+		TopicName:      opts.Topic.Name,
+	})
+}
+
+func deleteTopic(ctx context.Context) (interface{}, error) {
+	client, err := aiven.NewOTP(opts.Email, opts.Password, opts.OTP)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, kafka.New(client).DeleteTopic(ctx, kafka.DeleteTopicIn{
+		Project:   opts.Project,
+		Service:   opts.Service,
+		TopicName: opts.Topic.Name,
+	})
 }
