@@ -95,6 +95,7 @@ func (a *Api) DeleteTopic(ctx context.Context, in DeleteTopicIn) error {
 	u := fmt.Sprintf("https://console.aiven.io/v1beta/project/%v/service/%v/topic/%v", in.Project, in.Service, in.TopicName)
 	out := struct {
 		Errors []struct {
+			Status  int
 			Message string
 		}
 		Message string
@@ -104,8 +105,11 @@ func (a *Api) DeleteTopic(ctx context.Context, in DeleteTopicIn) error {
 		return errors.Wrapf(err, "unable to create topic, %v, for project:service, %v:%v", in.TopicName, in.Project, in.Service)
 	}
 
-	if len(out.Errors) > 0 {
-		return fmt.Errorf(out.Message)
+	for _, e := range out.Errors {
+		if e.Status == http.StatusNotFound {
+			return nil
+		}
+		return fmt.Errorf(e.Message)
 	}
 
 	return nil
