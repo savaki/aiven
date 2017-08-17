@@ -132,7 +132,7 @@ func New(email, password string) (*Client, error) {
 	return NewOTP(email, password, "")
 }
 
-// EnvAuth constructs a new client from environment variables: AIVEN_USERNAME, AIVEN_PASSWORD, and AIVEN_OTP
+// EnvAuth constructs a new client from environment variables: AIVEN_EMAIL, AIVEN_PASSWORD, and AIVEN_OTP
 func EnvAuth() (*Client, error) {
-	return NewOTP(os.Getenv("AIVEN_USERNAME"), os.Getenv("AIVEN_PASSWORD"), os.Getenv("AIVEN_OTP"))
+	return NewOTP(os.Getenv("AIVEN_EMAIL"), os.Getenv("AIVEN_PASSWORD"), os.Getenv("AIVEN_OTP"))
 }
