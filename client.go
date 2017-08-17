@@ -94,7 +94,7 @@ func (c *Client) authOTP(ctx context.Context, email, password, otp string) error
 		Token   string
 	}{}
 
-	if err := c.Post(ctx, "https://console.aiven.io/v1beta/userauth", in, &out); err != nil {
+	if err := c.Post(ctx, "https://api.aiven.io/v1beta/userauth", in, &out); err != nil {
 		return errors.Wrapf(err, "unable to authenticate user")
 	}
 
