@@ -114,3 +114,59 @@ func (a *Api) DeleteTopic(ctx context.Context, in DeleteTopicIn) error {
 
 	return nil
 }
+
+type TopicInfoIn struct {
+	Project   string
+	Service   string
+	TopicName string
+}
+
+type Error struct {
+	Message  string `json:"message"`
+	MoreInfo string `json:"more_info"`
+	Status   int    `json:"status"`
+}
+
+type ConsumerGroupInfo struct {
+	GroupName string `json:"group_name"`
+	Offset    int64  `json:"offset"`
+}
+
+type PartitionInfo struct {
+	ConsumerGroups []ConsumerGroupInfo `json:"consumer_groups"`
+	EarliestOffset int64               `json:"earliest_offset"`
+	InSyncReplicas int                 `json:"isr"`
+	LatestOffset   int64               `json:"latest_offset"`
+	Partition      int32               `json:"partition"`
+	Size           int64               `json:"size"`
+}
+
+type TopicInfo struct {
+	CleanupPolicy     string          `json:"cleanup_policy"`
+	MinInsyncReplicas int             `json:"min_insync_replicas"`
+	Partitions        []PartitionInfo `json:"partitions"`
+	Replication       int             `json:"replication"`
+	RetentionBytes    int64           `json:"retention_bytes"`
+	RetentionHours    int             `json:"retention_hours"`
+	State             string          `json:"state"`
+	TopicName         string          `json:"topic_name"`
+}
+
+type TopicInfoOut struct {
+	Errors  []Error   `json:"errors"`
+	Message string    `json:"message"`
+	Topic   TopicInfo `json:"topic"`
+}
+
+// TopicInfo returns topic metadata
+//
+// See https://api.aiven.io/doc/#api-Service__Kafka-ServiceKafkaTopicGet
+func (a *Api) TopicInfo(ctx context.Context, in TopicInfoIn) (TopicInfoOut, error) {
+	out := TopicInfoOut{}
+	u := fmt.Sprintf("https://console.aiven.io/v1beta/project/%v/service/%v/topic/%v", in.Project, in.Service, in.TopicName)
+	if err := a.client.Get(ctx, u, &out); err != nil {
+		return out, errors.Wrapf(err, "unable to retrieve topic info for topic, %v", in.TopicName)
+	}
+
+	return out, nil
+}

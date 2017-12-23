@@ -25,4 +25,5 @@
 /sample.*
 
 # ignore temp files
-/*.env
+*.env
+
