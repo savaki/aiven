@@ -21,6 +21,10 @@ type Client struct {
 	client *http.Client
 }
 
+func (c *Client) Kafka() *Kafka {
+	return newKafka(c)
+}
+
 // Do provides a generic handle for request content from aiven
 func (c *Client) Do(ctx context.Context, method, url string, in, out interface{}) error {
 	var body io.Reader
